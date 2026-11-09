@@ -91,3 +91,22 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+uint64
+sys_procinfo(void)
+{
+  int pid;
+  uint64 info_addr;
+  struct procinfo info;
+
+  argint(0, &pid);
+  argaddr(1, &info_addr);
+
+  if (getprocinfo(pid, &info) < 0)
+    return -1;
+
+  if (copyout(myproc()->pagetable, info_addr, (char *)&info, sizeof(info)) < 0)
+    return -1;
+
+  return 0;
+}
